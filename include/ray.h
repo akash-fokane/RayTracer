@@ -5,21 +5,21 @@
 
 typedef struct ray
 {
-    vec3 orig;
-    vec3 dir;
+    vec3 origin;
+    vec3 direction;
 } ray;
 
 ray ray_create(vec3 point, vec3 v)
 {
     ray r;
-    r.orig = point;
-    r.dir = v;
+    r.origin = point;
+    r.direction = v;
     return r;
 }
 
 vec3 ray_at(ray r, double t)
 {
-    return vec3_add(r.orig, vec3_scale(r.dir, t));
+    return vec3_add(r.origin, vec3_scale(r.direction, t));
 }
 
 #endif
