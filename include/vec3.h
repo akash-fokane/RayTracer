@@ -40,6 +40,11 @@ static inline vec3 vec3_scale(vec3 v, double c)
     return vec3_create(c * v.e[0], c * v.e[1], c * v.e[2]);
 }
 
+static inline vec3 vec3_offset(vec3 v, double a, double b, double c)
+{
+    return vec3_create(v.e[0] + a, v.e[1] + b, v.e[2] + c);
+}
+
 static inline vec3 vec3_div(vec3 v, double c)
 {
     return vec3_scale(v, 1.0 / c);

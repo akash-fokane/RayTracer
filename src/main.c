@@ -7,21 +7,30 @@
 #include "color.h"
 #include "ray.h"
 
-bool hit_sphere(vec3 center, double radius, ray r)
+double hit_sphere(vec3 center, double radius, ray r)
 {
     vec3 oc = vec3_sub(center, r.origin);
     double a = vec3_dot(r.direction, r.direction);
-    double b = -2.0 * (vec3_dot(r.direction, oc));
+    double h = vec3_dot(r.direction, oc);
     double c = vec3_dot(oc, oc) - radius * radius;
-    double discriminant = b * b - 4 * a * c;
-    return (discriminant >= 0);
+    double discriminant = h * h - a * c;
+    if (discriminant < 0)
+    {
+        return -1.0;
+    }
+    else
+    {
+        return (h - sqrt(discriminant)) / a;
+    }
 }
 
 color ray_color(ray r)
 {
-    if (hit_sphere(vec3_create(0, 0, -2), 0.5, r))
+    double t = hit_sphere(vec3_create(0, 0, -1), 0.5, r);
+    if (t > 0.0)
     {
-        return (color){{1, 0, 0}};
+        vec3 N = vec3_unit(vec3_sub(ray_at(r, t), vec3_create(0, 0, -1)));
+        return vec3_scale(vec3_offset(N, 1.0, 1.0, 1.0), 0.5);
     }
 
     vec3 unit_direction = vec3_unit(r.direction);
@@ -29,7 +38,6 @@ color ray_color(ray r)
     return vec3_add(
         vec3_scale(vec3_create(1.0, 1.0, 1.0), 1.0 - a),
         vec3_scale(vec3_create(0.5, 0.7, 1.0), a));
-    // return (color){{0, 0, 0}};
 }
 
 int main()
