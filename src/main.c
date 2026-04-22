@@ -2,34 +2,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "main.h"
-#include "vec3.h"
-#include "color.h"
-#include "ray.h"
+#include "defines.h"
+#include "sphere.h"
+#include "hittable.h"
 
-double hit_sphere(vec3 center, double radius, ray r)
+color ray_color(ray r, hittables_list *world)
 {
-    vec3 oc = vec3_sub(center, r.origin);
-    double a = vec3_dot(r.direction, r.direction);
-    double h = vec3_dot(r.direction, oc);
-    double c = vec3_dot(oc, oc) - radius * radius;
-    double discriminant = h * h - a * c;
-    if (discriminant < 0)
+    if (hittables_list_hit(world, r, 0, infinity))
     {
-        return -1.0;
-    }
-    else
-    {
-        return (h - sqrt(discriminant)) / a;
-    }
-}
-
-color ray_color(ray r)
-{
-    double t = hit_sphere(vec3_create(0, 0, -1), 0.5, r);
-    if (t > 0.0)
-    {
-        vec3 N = vec3_unit(vec3_sub(ray_at(r, t), vec3_create(0, 0, -1)));
+        vec3 N = world->record.normal;
         return vec3_scale(vec3_offset(N, 1.0, 1.0, 1.0), 0.5);
     }
 
@@ -43,7 +24,7 @@ color ray_color(ray r)
 int main()
 {
     double aspect_ratio = 16.0 / 9.0;
-    int image_width = 400;
+    int image_width = 800;
 
     // image height calculation
     int image_height = (int)(image_width / aspect_ratio);
@@ -69,6 +50,12 @@ int main()
 
     vec3 pixel00_loc = vec3_add(viewport_upper_left, vec3_div(vec3_add(pixel_delta_u, pixel_delta_v), 2));
 
+    hittables_list world = {0};
+    sphere s1 = {.center = {0, 0, -1}, .hit = sphere_hit, .radius = 0.5, .record = {0}};
+    hittable_add(&world, &s1);
+    sphere s2 = {.center = {0, -100.5, -1}, .hit = sphere_hit, .radius = 100, .record = {0}};
+    hittable_add(&world, &s2);
+
     // uint16_t image_width = IMAGE_WIDTH,
     //          image_height = IMAGE_HEIGHT;
     printf("P3\n%d %d\n255\n", image_width, image_height);
@@ -84,7 +71,7 @@ int main()
             vec3 ray_direction = vec3_sub(pixel_center, camera_center);
 
             ray r = ray_create(camera_center, ray_direction);
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r, &world);
 
             // color c = vec3_create(j * 1.0f / (image_width - 1), i * 1.0f / (image_height - 1), 0);
             write_color(stdout, &pixel_color);
