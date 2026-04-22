@@ -8,7 +8,7 @@
 
 color ray_color(ray r, hittables_list *world)
 {
-    if (hittables_list_hit(world, r, 0, infinity))
+    if (hittables_list_hit(world, r, (interval){0, infinity}))
     {
         vec3 N = world->record.normal;
         return vec3_scale(vec3_offset(N, 1.0, 1.0, 1.0), 0.5);

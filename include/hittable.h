@@ -30,7 +30,7 @@ bool hittables_list_hit(hittables_list *l, ray r, interval ray_t)
     for (int i = 0; i < l->count; i++)
     {
         sphere *s = l->hittables[i];
-        if (s->hit(s, r, ray_t.min, closest))
+        if (s->hit(s, r, (interval){ray_t.min, closest}))
         {
             hit_anything = true;
             closest = s->record.t;
