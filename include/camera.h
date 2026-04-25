@@ -8,7 +8,7 @@ typedef struct
     double aspect_ratio;
     int image_width;
     int samples_per_pixel;
-
+    int max_depth;
     int image_height;
     vec3 center;
     vec3 pixel00_loc;
@@ -39,12 +39,19 @@ void camera_init(camera *cam)
     cam->pixel00_loc = vec3_add(viewport_upper_left, vec3_div(vec3_add(cam->pixel_delta_u, cam->pixel_delta_v), 2));
 }
 
-color camera_ray_color(camera *cam, ray r, hittables_list *world)
+color camera_ray_color(camera *cam, ray r, hittables_list *world, int depth)
 {
-    if (hittables_list_hit(world, r, (interval){0, infinity}))
+    if (depth <= 0)
+    {
+        return (color){0, 0, 0};
+    }
+    if (hittables_list_hit(world, r, (interval){0.001, infinity}))
     {
         vec3 N = world->record.normal;
-        return vec3_scale(vec3_offset(N, 1.0, 1.0, 1.0), 0.5);
+        vec3 direction = random_on_hemisphere(N);
+        ray scattered = ray_create(world->record.p, direction);
+        // return vec3_scale(vec3_offset(N, 1.0, 1.0, 1.0), 0.5);
+        return vec3_scale(camera_ray_color(cam, scattered, world, depth - 1), 0.5);
     }
 
     vec3 unit_direction = vec3_unit(r.direction);
@@ -86,7 +93,7 @@ void camera_render(camera *cam, hittables_list *world)
             for (int s = 0; s < cam->samples_per_pixel; s++)
             {
                 ray r = camera_get_ray(cam, j, i);
-                pixel_color = vec3_add(pixel_color, camera_ray_color(cam, r, world));
+                pixel_color = vec3_add(pixel_color, camera_ray_color(cam, r, world, cam->max_depth));
             }
             write_color(stdout, vec3_scale(pixel_color, 1.0 / cam->samples_per_pixel));
         }

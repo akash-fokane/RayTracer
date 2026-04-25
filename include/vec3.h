@@ -89,4 +89,35 @@ static inline void vec3_print(vec3 v)
     printf("%f %f %f \n", v.e[0], v.e[1], v.e[2]);
 }
 
+static inline vec3 vec3_random(double min, double max)
+{
+    return vec3_create(random_double(min, max), random_double(min, max), random_double(min, max));
+}
+
+static inline vec3 vec3_random_unit()
+{
+    while (true)
+    {
+        vec3 p = vec3_random(-1, 1);
+        double lensq = vec3_length_squared(p);
+        if (lensq <= 1 && lensq > 1e-160)
+        {
+            return vec3_unit(p);
+        }
+    }
+}
+
+static inline vec3 random_on_hemisphere(vec3 normal)
+{
+    vec3 on_unit_sphere = vec3_random_unit();
+    if (vec3_dot(on_unit_sphere, normal) > 0.0)
+    {
+        return on_unit_sphere;
+    }
+    else
+    {
+        return vec3_negate(on_unit_sphere);
+    }
+}
+
 #endif

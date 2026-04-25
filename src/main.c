@@ -16,7 +16,7 @@ int main()
     sphere s2 = {.center = {0, -100.5, -1}, .hit = sphere_hit, .radius = 100, .record = {0}};
     hittable_add(&world, &s2);
 
-    camera cam = {.aspect_ratio = 16.0 / 9.0, .image_width = 800, .samples_per_pixel = 100};
+    camera cam = {.aspect_ratio = 16.0 / 9.0, .image_width = 800, .samples_per_pixel = 10, .max_depth = 50};
 
     camera_render(&cam, &world);
 
