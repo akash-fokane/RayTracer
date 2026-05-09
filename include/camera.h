@@ -48,9 +48,8 @@ color camera_ray_color(camera *cam, ray r, hittables_list *world, int depth)
     if (hittables_list_hit(world, r, (interval){0.001, infinity}))
     {
         vec3 N = world->record.normal;
-        vec3 direction = random_on_hemisphere(N);
+        vec3 direction = vec3_add(N, vec3_random_unit());
         ray scattered = ray_create(world->record.p, direction);
-        // return vec3_scale(vec3_offset(N, 1.0, 1.0, 1.0), 0.5);
         return vec3_scale(camera_ray_color(cam, scattered, world, depth - 1), 0.5);
     }
 
